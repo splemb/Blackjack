@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class CardManager : MonoBehaviour
 {
-    public Card[] deck = new Card[52];
+    public List<Card> deck = new List<Card>();
 
     void Start()
     {
-        int indexCount = 0;
         for (int s = 0; s < 4; s++)
         {
             for (int r = 1; r <= 13; r++)
@@ -16,48 +15,47 @@ public class CardManager : MonoBehaviour
                 switch (r)
                 {
                     case 1:
-                        deck[indexCount] = new Card(r, s.ToString()[0], 'A');
+                        deck.Add(new Card(s.ToString()[0], 'A'));
                         break;
                     case 10:
-                        deck[indexCount] = new Card(r, s.ToString()[0], '0');
+                        deck.Add(new Card(s.ToString()[0], '0'));
                         break;
                     case 11:
-                        deck[indexCount] = new Card(r, s.ToString()[0], 'J');
+                        deck.Add(new Card(s.ToString()[0], 'J'));
                         break;
                     case 12:
-                        deck[indexCount] = new Card(r, s.ToString()[0], 'Q');
+                        deck.Add(new Card(s.ToString()[0], 'Q'));
                         break;
                     case 13:
-                        deck[indexCount] = new Card(r, s.ToString()[0], 'K');
+                        deck.Add(new Card(s.ToString()[0], 'K'));
                         break;
                     default:
-                        deck[indexCount] = new Card(r, s.ToString()[0], r.ToString()[0]);
+                        deck.Add(new Card(s.ToString()[0], r.ToString()[0]));
                         break;
                 }
-                indexCount++;
             }
         }
         ShuffleDeck();
-        ReadDeck();
+        //ReadDeck();
 
     }
 
     void ShuffleDeck()
     {
-        for (int t = 0; t < deck.Length; t++)
+        for (int c = 0; c < deck.Count; c++)
         {
-            Card tmp = deck[t];
-            int r = Random.Range(t, deck.Length);
-            deck[t] = deck[r];
+            Card tmp = deck[c];
+            int r = Random.Range(c, deck.Count);
+            deck[c] = deck[r];
             deck[r] = tmp;
         }
     }
 
     void ReadDeck()
     {
-        foreach (Card c in deck)
+        for (int c = 0; c < deck.Count; c++)
         {
-            Debug.Log(c.name);
+            Debug.Log(deck[c].name + " || Worth " + deck[c].value);
         }
     }
 }
