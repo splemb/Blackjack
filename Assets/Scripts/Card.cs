@@ -67,16 +67,16 @@ public class Card : ScriptableObject
 
         switch (suit)
         {
-            case 'D':
+            case '0':
                 name = name + "Diamonds";
                 break;
-            case 'H':
+            case '1':
                 name = name + "Hearts";
                 break;
-            case 'C':
+            case '2':
                 name = name + "Clubs";
                 break;
-            case 'S':
+            case '3':
                 name = name + "Spades";
                 break;
         }
