@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CardManager : MonoBehaviour
 {
@@ -15,11 +16,19 @@ public class CardManager : MonoBehaviour
     bool lost = false;
     public float turnDelay;
     float nextTurnTime=0f;
+
+    public Canvas resetButton;
+
+    public AudioSource theSound;
+
+    public TMPro.TextMeshProUGUI totalText;
     void Start()
-    {      
+    {     
+        resetButton.enabled = false;
         GenerateDeck();
         ShuffleDeck(3);
         players[currentPlayer].yourTurn=true;
+        
     }
 
     void Update() {
@@ -30,14 +39,21 @@ public class CardManager : MonoBehaviour
                     break;
                 }
                 playersLeft=false;
+                
             } 
         }
         else {
             DrawHand();
+            totalText.text = dealerTotal.ToString();
+            resetButton.enabled= true;
             foreach (PlayerManager p in players) {
                 if (!p.lost) {
-                    if (p.total > dealerTotal){
+                    if (p.total > dealerTotal || dealerTotal > 21){
                         p.won=true;
+                    } else {
+                        p.lost=false;
+                        p.stand=false;
+
                     }
                 }
             }
@@ -114,6 +130,7 @@ public class CardManager : MonoBehaviour
     }
 
     void DealerHit() {
+        theSound.Play();
         dealerHand.Add(deck[deck.Count-1]);
         deck.RemoveAt(deck.Count - 1);
         DrawHand();
@@ -140,5 +157,14 @@ public class CardManager : MonoBehaviour
             else currentPlayer++;
             players[currentPlayer].yourTurn=true;
         }
+    }
+
+    public void ResetGame() {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void CloseGame() {
+        Application.Quit();
+        Debug.Log("QUITTED!");
     }
 }

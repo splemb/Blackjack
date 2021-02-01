@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -14,23 +15,26 @@ public class PlayerManager : MonoBehaviour
     public bool lost = false;
     public bool won = false;
     public bool yourTurn=false;
+    public Canvas buttons;
 
     public float thinkDelay;
+    public float nextThink=0f;
     private void Start()
     {
         dealer = GameObject.FindGameObjectWithTag("Card Manager").GetComponent<CardManager>();
+        buttons.enabled=false;
     }
 
     private void Update() {
         totalText.text=total.ToString();
         if (lost) statusText.text="BUST!";
-        else if (won) statusText.text="WINNER!";
+        else if (won) {
+            statusText.text="WINNER!";
+        }
         else if (stand) statusText.text="STAND";
+        else statusText.text="";
 
-        if (yourTurn) {
-            if (lost || stand) dealer.Invoke("NextPlayer",dealer.turnDelay);
-            else {
-                switch (tag) {
+        switch (tag) {
                     case "Player":
                         ProcessPlayer();
                         break;
@@ -38,47 +42,60 @@ public class PlayerManager : MonoBehaviour
                         ProcessComputer();
                         break;
                 }
-            }
-            if (!yourTurn) {
-                dealer.Invoke("NextPlayer",dealer.turnDelay);
-            }
-        }
     }
 
     private void ProcessPlayer()
     {
-        if (playerHand.Count<2) {
-                Hit();
-                yourTurn=false;
-        } else {
-        
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                Hit();
+        if (yourTurn) {
+            if (lost || stand) {yourTurn = false; buttons.enabled = false;}
+            else {
+                if (playerHand.Count<2) {
+                    Hit();
+                    yourTurn=false;
+                } else {
+                    buttons.enabled = true;
+                }
             }
-            else if (Input.GetKeyDown(KeyCode.Backspace)) {
-                stand=true;
+            if (!yourTurn) {
+                dealer.Invoke("NextPlayer",dealer.turnDelay);
+                buttons.enabled = false;
             }
-            
         }
+
+        
     }
 
     private void ProcessComputer() 
     {
-        if (playerHand.Count<2) {
-                Hit();
-                yourTurn=false;
-        } else {
-            if (total <= 16) {
-                Hit();
-            } else {
-                stand=true;
+        if (yourTurn) {
+            buttons.enabled = false;
+            if (lost || stand) {yourTurn = false; buttons.enabled = false;}
+            else {
+                if (playerHand.Count<2) {
+                    Hit();
+                    yourTurn=false;
+                }
+                else {
+                    if (Time.time > nextThink) {
+                        nextThink+=Random.Range(1,5)*thinkDelay;
+                        if (total <= 16) {
+                            Hit();
+                        } else {
+                            stand=true;
+                        }
+                    }
+                }
+            }
+            if (!yourTurn) {
+                dealer.Invoke("NextPlayer",dealer.turnDelay);
+                buttons.enabled = false;
             }
         }
     }
 
-    void Hit()
+    public void Hit()
     {
+        dealer.theSound.Play();
         playerHand.Add(dealer.deck[dealer.deck.Count-1]);
         dealer.deck.RemoveAt(dealer.deck.Count - 1);
         DrawHand();
@@ -95,6 +112,11 @@ public class PlayerManager : MonoBehaviour
         }
         
         
+    }
+
+    public void Stand()
+    {
+        stand=true;
     }
 
     void DrawHand() {
